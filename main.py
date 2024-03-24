@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 
-import passes
+from passes import passlist
 
 def main():
+    print(passlist)
     print("Main")
 
 

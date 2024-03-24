@@ -3,6 +3,7 @@ import inspect
 from passes.PassClasses import Pass
 import importlib
 
+passlist = []
 
 # https://stackoverflow.com/questions/73186008/how-to-list-all-classes-and-methods-functions-in-a-package-with-a-full-folder
 def recusive_module_search(module):
@@ -17,9 +18,10 @@ def recusive_module_search(module):
             pass
         elif inspect.isclass(member):
             if issubclass(member, Pass) and not inspect.isabstract(member):
-                file = inspect.getfile(member)
-                print(file, function_signature_string(member), "class")
-
+                #file = inspect.getfile(member)
+                # TODO: Convert to logging statement
+                #print(file, function_signature_string(member), "class")
+                passlist.append(member)
 
 
 def function_signature_string(member):
