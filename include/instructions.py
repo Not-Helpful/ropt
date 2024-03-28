@@ -11,7 +11,7 @@ def makeInstruction(ins: dis.Instruction) -> OpCode:
         return CallInstruction(ins)
     if ins.opname == "POP_TOP":
         return StackInstruction(ins)
-    if ins.opname == "RETURN_VALUE"
+    if ins.opname == "RETURN_VALUE":
         return ReturnInstruction(ins)
 
 
