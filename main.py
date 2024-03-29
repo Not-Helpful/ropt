@@ -3,11 +3,35 @@
 
 from passes import passlist
 from passes.PassClasses import State
+from include import instructions as ins
+from include import ControlFlow as cf
+import dis
 
 state = State()
 
 def passEngine():
-    passname = input("What pass we runnin?")
+    #TODO Make generic
+    passname = "t"
+
+    sourcecode = './explore/functioncall.py'
+    infile = open(sourcecode, "r")
+    sourcecode = infile.read()
+
+    instructionList = dis.get_instructions(sourcecode)
+    instructions = []
+
+    for instruction in instructionList:
+        a = ins.makeInstruction(instruction)
+        print(a)
+        instructions.append(a)
+    
+    BB = cf.createBasicBlocks(instructions)
+
+    for block in BB:
+        print(block.name, ": ")
+
+        for opcode in block.instructions:
+            print(opcode.instruction)
     
     for p in passlist:
         if p.name == passname:

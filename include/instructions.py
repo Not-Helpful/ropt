@@ -2,19 +2,6 @@
 
 import dis
 
-def makeInstruction(ins: dis.Instruction) -> OpCode:
-    if ins.opname.__contains__("LOAD_"):
-        return LoadInstruction(ins)
-    if ins.opname.__contain__("STORE_"):
-        return StoreInstruction(ins)
-    if ins.opname == "CALL":
-        return CallInstruction(ins)
-    if ins.opname == "POP_TOP":
-        return StackInstruction(ins)
-    if ins.opname == "RETURN_VALUE":
-        return ReturnInstruction(ins)
-
-
 class OpCode():
     """Doc String."""
     instruction: dis.Instruction
@@ -30,26 +17,90 @@ class LoadInstruction(OpCode):
     """Doc String."""
 
     def __init__(self, instruction: dis.Instruction):
-    """Doc String."""
-        super(instruction)
+        """Doc String."""
+        super().__init__(instruction)
 
 class StoreInstruction(OpCode):
     """Doc String."""
 
     def __init__(self, instruction: dis.Instruction):
-        super(instruction)
+        super().__init__(instruction)
 
 class CallInstruction(OpCode):
 
     def __init__(self, instruction: dis.Instruction):
-        super(instruction)
+        super().__init__(instruction)
 
 class StackInstruction(OpCode):
 
     def __init__(self, instruction: dis.Instruction):
-        super(instruction)
+        super().__init__(instruction)
 
 class ReturnInstruction(OpCode):
 
     def __init__(self, instruction: dis.Instruction):
-        super(instruction)
+        super().__init__(instruction)
+
+class ResumeInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+class ImportInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+class MakeInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+class IterInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+class JumpInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+class DataInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+
+def makeInstruction(ins: dis.Instruction) -> OpCode:
+    if ins.opname.__contains__("LOAD_"):
+        return LoadInstruction(ins)
+    elif ins.opname.__contains__("STORE_"):
+        return StoreInstruction(ins)
+    elif ins.opname == "CALL":
+        return CallInstruction(ins)
+    elif ins.opname == "POP_TOP":
+        return StackInstruction(ins)
+    elif ins.opname == "END_FOR":
+        return StackInstruction(ins)
+    elif ins.opname == "PUSH_NULL":
+        return StackInstruction(ins)
+    elif ins.opname.__contains__("RETURN_"):
+        return ReturnInstruction(ins)
+    elif ins.opname == "RESUME":
+        return ResumeInstruction(ins)
+    elif ins.opname.__contains__("IMPORT_"):
+        return ImportInstruction(ins)
+    elif ins.opname == "MAKE_FUNCTION":
+        return MakeInstruction(ins)
+    elif ins.opname == "FOR_ITER":
+        return JumpInstruction(ins)
+    elif ins.opname.__contains__("JUMP_"):
+        return JumpInstruction(ins)
+    elif ins.opname.__contains__("ITER"):
+        return DataInstruction(ins)
+    else:
+        print(ins)
+        raise NotImplementedError
+        #TODO Custom error
+    
