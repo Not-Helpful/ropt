@@ -66,6 +66,12 @@ class JumpInstruction(OpCode):
     def __init__(self, instruction: dis.Instruction):
         super().__init__(instruction)
 
+    def isConditional(self):
+        if self.instruction.opname == "JUMP_ABSOLUTE" or self.instruction.opname == "JUMP_FORWARD":
+            return False
+        else:
+            return True
+
 class DataInstruction(OpCode):
 
     def __init__(self, instruction: dis.Instruction):

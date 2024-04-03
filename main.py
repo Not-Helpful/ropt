@@ -22,17 +22,25 @@ def passEngine():
 
     for instruction in instructionList:
         a = ins.makeInstruction(instruction)
-        print(a)
+        # print(a)
         instructions.append(a)
     
     BB = cf.createBasicBlocks(instructions)
+    cf.findJumpTargets(BB)
 
     for block in BB:
-        print(block.name, ": ")
+        print('\n', block.name, ": ")
 
         for opcode in block.instructions:
-            print(opcode.instruction)
+            print(opcode.instruction.offset, ' ', opcode.instruction.opname, ' ', opcode.instruction.argval)
+
+        print('Jump Targets: ')
+
+        for b in block.jump_target:
+            print(b, ' ')
     
+    print('\n')
+
     for p in passlist:
         if p.name == passname:
             passToBeRun = p
