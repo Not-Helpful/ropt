@@ -27,7 +27,7 @@ class BasicBlock():
 
 def createBasicBlocks(instructionList: list[OpCode]) -> list[BasicBlock]:
     BBList = []
-    current = BasicBlock("Main")
+    current = BasicBlock("_start")
     count = 1
     
     for i in instructionList:

@@ -2,19 +2,61 @@
 
 
 from passes import passlist
-from passes.PassClasses import State
+from passes.PassClasses import State, Function
 from include import instructions as ins
 from include import ControlFlow as cf
 import dis
+import importlib
+import inspect
 
 state = State()
+
+def constructControlFlowGraph(instructionList: list[ins.OpCode]):
+    BB=cf.createBasicBlocks(instructionList)
+    cf.findJumpTargets(BB)
+    return BB
+
+def runInternalPasses():
+    print("Running Internal Passes")
+    
+    for p in passlist:
+        if p.name.__contains__("internal"):
+            runPass(p)
 
 def passEngine():
     #TODO Make generic
     passname = "t"
 
-    sourcecode = './explore/functioncall.py'
-    infile = open(sourcecode, "r")
+    sourcecode = './explore/testing.py'
+    pyPath = 'explore.testing'
+
+    funcList = getFuncList(sourcecode, pyPath)
+    # printFuncList(funcList)
+    
+    for func in funcList:
+        func.cfg = constructControlFlowGraph(func.instructionList)
+        # printCFG(func)
+
+    state.functions = funcList
+
+    runInternalPasses()
+
+    for func in state.functions:
+        printCFG(func)
+
+    for p in passlist:
+        if p.name == passname:
+            passToBeRun = p
+            break
+
+    runPass(passToBeRun)
+    # print(state.data)
+
+def getFuncList(pathname, pyPath) -> list[Function]:
+    
+    funcList = []
+
+    infile = open(pathname, "r")
     sourcecode = infile.read()
 
     instructionList = dis.get_instructions(sourcecode)
@@ -24,15 +66,45 @@ def passEngine():
         a = ins.makeInstruction(instruction)
         # print(a)
         instructions.append(a)
-    
-    BB = cf.createBasicBlocks(instructions)
-    cf.findJumpTargets(BB)
 
-    for block in BB:
+    funcList.append(Function("Top Level", instructions))
+    
+    members = inspect.getmembers(importlib.import_module(pyPath))
+
+    for name, member in members:
+        if inspect.isfunction(member):
+            instructionList = dis.get_instructions(member)
+            instructions = []
+
+            for instruction in instructionList:
+                a = ins.makeInstruction(instruction)
+                # print(a)
+                instructions.append(a)
+
+            funcList.append(Function( member.__name__, instructions))
+
+    return funcList
+
+def printFuncList(funcList: list[Function]):
+
+    for func in funcList:
+        print("\n" + func.name + ": ")
+        print("\nInstructions:\n")
+        print(func.instructionList)
+
+def printCFG(func):
+    blocks = func.cfg
+    print(func.name + ":")
+    for block in blocks:
         print('\n', block.name, ": ")
 
         for opcode in block.instructions:
-            print(opcode.instruction.offset, ' ', opcode.instruction.opname, ' ', opcode.instruction.argval)
+            if(isinstance(opcode, ins.CallInstruction)):
+                print(opcode.instruction.offset, ' ', opcode.instruction.opname, ' ', opcode.calls )
+            
+            else:
+                print(opcode.instruction.offset, ' ', opcode.instruction.opname, ' ', opcode.instruction.argval )
+
 
         print('Jump Targets: ')
 
@@ -41,19 +113,13 @@ def passEngine():
     
     print('\n')
 
-    for p in passlist:
-        if p.name == passname:
-            passToBeRun = p
-            break
-
-    runPass(passToBeRun)
-    print(state.data)
-
 def runPass(passToRun):
-    dep = getDependentPasses(passToRun)
-    for p in dep:
-        runPass(p)
-    passToRun.run(state)
+    if passToRun not in state.ran:    
+        dep = getDependentPasses(passToRun)
+        for p in dep:
+            runPass(p)
+        passToRun.run(state)
+        state.ran.append(passToRun)
 
 def getDependentPasses(passToBeRun):
     dependentPasses = []

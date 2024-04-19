@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from abc import ABC, abstractmethod
+from include.instructions import OpCode
+from include.ControlFlow import BasicBlock
 
 
 class Pass(ABC):
@@ -13,21 +15,19 @@ class Pass(ABC):
         """This is the entry point to the pass."""
         pass
 
-class PassData(ABC):
-    
-    @abstractmethod
-    def run():
-        pass
+class Function():
+    name: str
+    instructionList: list[OpCode]
+    cfg: list[BasicBlock]
 
-class Module(ABC):
-    def __init__():
-        pass
+    def __init__(self, name, instructionList) -> None:
+        self.name = name
+        self.instructionList = instructionList
+        self.cfg = []
 
-    def getByteCode():
-        pass
 
 class State():
-    modules: list[Module]
+    functions: list[Function]
     data: dict
     ran: list[Pass]
 

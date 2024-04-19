@@ -11,7 +11,7 @@ def recusive_module_search(module):
 
     for name, member in members:
         if inspect.ismodule(member):
-            # Dont go too deep :)
+            
             if member is module:
                 recusive_module_search(member)
         elif inspect.isfunction(member):

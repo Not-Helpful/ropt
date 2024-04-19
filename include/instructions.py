@@ -27,9 +27,11 @@ class StoreInstruction(OpCode):
         super().__init__(instruction)
 
 class CallInstruction(OpCode):
+    calls: str
 
     def __init__(self, instruction: dis.Instruction):
         super().__init__(instruction)
+        self.calls = None
 
 class StackInstruction(OpCode):
 
@@ -77,6 +79,16 @@ class DataInstruction(OpCode):
     def __init__(self, instruction: dis.Instruction):
         super().__init__(instruction)
 
+class CompareInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+class BinaryOPInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
 
 def makeInstruction(ins: dis.Instruction) -> OpCode:
     if ins.opname.__contains__("LOAD_"):
@@ -104,6 +116,12 @@ def makeInstruction(ins: dis.Instruction) -> OpCode:
     elif ins.opname.__contains__("JUMP_"):
         return JumpInstruction(ins)
     elif ins.opname.__contains__("ITER"):
+        return DataInstruction(ins)
+    elif ins.opname == "COMPARE_OP":
+        return CompareInstruction(ins)
+    elif ins.opname == "BINARY_OP":
+        return BinaryOPInstruction(ins)
+    elif ins.opname.__contains__("LIST"):
         return DataInstruction(ins)
     else:
         print(ins)

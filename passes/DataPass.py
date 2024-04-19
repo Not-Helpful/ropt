@@ -1,6 +1,6 @@
-from passes.PassClasses import Pass, PassData
+from passes.PassClasses import Pass
 
-class cfg(PassData):
+class cfg():
     name = "Control Flow Graph"
     def __init__(self) -> None:
         pass
