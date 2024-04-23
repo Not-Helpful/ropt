@@ -2,11 +2,28 @@
 
 import dis
 
+class StackObject():
+    name: str
+    deps: list[str]
+    
+    def __init__(self, name: str, deps:list[str]):
+        self.name = name
+        self.deps = deps
+    
+    def __init__(self, name: str):
+        self.name = name
+        self.deps = []
+
+
 class Stack():
-    stack: list
+    stack: list[StackObject]
+    lists: dict
+    listCounter: int
 
     def __init__(self):
         self.stack = []
+        self.lists = {}
+        self.listCounter = 0
 
     def push(self, arg):
         self.stack.insert(0, arg)
@@ -17,8 +34,8 @@ class Stack():
         else:
             return self.stack.pop(0)
         
-    def peek(self):
-        return self.stack[0]
+    def peek(self, num):
+        return self.stack[num-1]
     
     def clear(self):
         self.stack.clear()
@@ -47,7 +64,13 @@ class LoadInstruction(OpCode):
         super().__init__(instruction)
 
     def stack_effect(self, stack):
-        stack.push(self.instruction.argrepr)
+        if self.instruction.opname == "LOAD_ATTR":
+            attr = self.instruction.argrepr + '.' + stack.pop().name 
+            stack.push(StackObject(attr))
+        elif self.instruction.opname == "LOAD_GLOBAL":
+            stack.push(StackObject("GLOBAL_" + self.instruction.argrepr))
+        else:
+            stack.push(StackObject(self.instruction.argrepr))
 
 class StoreInstruction(OpCode):
     """Doc String."""
@@ -56,7 +79,10 @@ class StoreInstruction(OpCode):
         super().__init__(instruction)
 
     def stack_effect(self, stack):
-        stack.pop()
+        val = stack.pop()
+        if val.name in stack.lists.keys():
+            stack.lists[self.instruction.argrepr] = stack.lists[val.name]
+
 
 class CallInstruction(OpCode):
     calls: str
@@ -69,7 +95,7 @@ class CallInstruction(OpCode):
         numVals = self.instruction.argval
 
         for i in range(numVals):
-            stack.pop(0)
+            stack.pop()
 
 class PopInstruction(OpCode):
 
@@ -79,7 +105,7 @@ class PopInstruction(OpCode):
 
     def stack_effect(self, stack):
         for i in range(self.popCount):
-            stack.pop(0)
+            stack.pop()
 
 class PushInstruction(OpCode):
 
@@ -90,7 +116,7 @@ class PushInstruction(OpCode):
 
     def stack_effect(self, stack):
         for i in range(self.pushCount):
-            stack.push(self.pushVal)
+            stack.push(StackObject(self.pushVal))
 
 class ReturnInstruction(OpCode):
 
@@ -123,10 +149,10 @@ class ImportInstruction(OpCode):
         if self.instruction.opname == "IMPORT_NAME":
             stack.pop()
             stack.pop()
-            stack.push(self.instruction.argrepr)
+            stack.push(StackObject(self.instruction.argrepr))
         elif self.instruction.opname == "IMPORT_FROM":
             stack.pop()
-            stack.push(self.instruction.argrepr)
+            stack.push(StackObject(self.instruction.argrepr))
         else:
             print('Implement me: stack_effect')
 
@@ -139,7 +165,7 @@ class MakeInstruction(OpCode):
         consumedInd = self.instruction.argval
 
         if consumedInd == 0:
-            stack.push(stack.pop())
+            pass
         else:
             print("MakeInstruction.stack_effect: Implement Me")
 
@@ -156,7 +182,7 @@ class JumpInstruction(OpCode):
         super().__init__(instruction)
 
     def isConditional(self):
-        if self.instruction.opname == "JUMP_ABSOLUTE" or self.instruction.opname == "JUMP_FORWARD":
+        if self.instruction.opname == "JUMP_ABSOLUTE" or self.instruction.opname == "JUMP_FORWARD" or self.instruction.opname == "JUMP_BACKWARD":
             return False
         else:
             return True
@@ -164,18 +190,25 @@ class JumpInstruction(OpCode):
     def stack_effect(self, stack, willJump:bool):
         if (self.isConditional()):
             match willJump:
-                case True:
+                case True:   
+                    if self.instruction.opname == "FOR_ITER":
+                        stack.push(StackObject("FOR_ITER_NONE"))     
                     if self.instruction.opname.startswith("POP_JUMP"):
                         stack.pop()
+                        return
                 case False:
                     if self.instruction.opname == "FOR_ITER":
-                        stack.push("FOR_ITER_next")
+                        stack.push(StackObject("FOR_ITER_next"))
                     elif self.instruction.opname.startswith("POP_JUMP"):
                         stack.pop()
                     else:
-                        pass
-        else:
-            pass
+                        return
+        else: 
+            return
+
+    def get_jump_target(self):
+            return self.instruction.argval
+    
 
 
 
@@ -184,15 +217,33 @@ class DataInstruction(OpCode):
     def __init__(self, instruction: dis.Instruction):
         super().__init__(instruction)
 
-    def stack_effect(self, stack):
+    def stack_effect(self, stack: Stack):
         if self.instruction.opname.startswith("BUILD_"):
-            for i in range(self.instruction.argval):
-                stack.pop()
-            stack.push(self.instruction.opname.removeprefix("BUILD_") + "_OBJECT")
+
+            if self.instruction.opname.__contains__("LIST"):
+                stack.lists['list' + str(stack.listCounter)] = []
+                for i in range(self.instruction.argval):
+                    val = stack.pop().name
+                    stack.lists['list' + str(stack.listCounter)].append(val)
+                stack.push(StackObject('list' + str(stack.listCounter)))
+                stack.listCounter = stack.listCounter + 1
+
+            else:
+                for i in range(self.instruction.argval):
+                    stack.pop()
+                    stack.push(StackObject(self.instruction.opname.removeprefix("BUILD_") + "_OBJECT"))
+
         elif self.instruction.opname == "LIST_APPEND":
-            stack.pop()
+            val = stack.pop().name
+            stack.lists[stack.peek(self.instruction.argval).name].append(val)
         elif self.instruction.opname == "LIST_EXTEND":
-            stack.pop()
+            val = stack.pop().name
+            stack.lists[stack.peek(self.instruction.argval).name].extend(val)
+        elif self.instruction.opname == "GET_ITER":
+            val = stack.pop().name
+            stack.push(StackObject("iter(" + val + ")"))
+        
+        
 
 class CompareInstruction(OpCode):
 
@@ -202,7 +253,7 @@ class CompareInstruction(OpCode):
     def stack_effect(self, stack):
         stack.pop()
         stack.pop()
-        stack.push("COMPAREOP_VALUE")
+        stack.push(StackObject("COMPAREOP_VALUE"))
         
 
 class BinaryOPInstruction(OpCode):
@@ -213,7 +264,20 @@ class BinaryOPInstruction(OpCode):
     def stack_effect(self, stack):
         stack.pop()
         stack.pop()
-        stack.push("BINARYOP_VALUE")
+        stack.push(StackObject("BINARYOP_VALUE"))
+
+class BinarySubInstruction(OpCode):
+
+    def __init__(self, instruction: dis.Instruction):
+        super().__init__(instruction)
+
+    def stack_effect(self, stack):
+        key = stack.pop().name
+        container = stack.pop().name
+        if(isinstance(key, int)):
+            stack.push(StackObject(stack.lists[container][int(key)]))
+        else:
+            stack.push(StackObject(container + "["+key+"]"))
 
 
 def makeInstruction(ins: dis.Instruction) -> OpCode:
@@ -249,6 +313,8 @@ def makeInstruction(ins: dis.Instruction) -> OpCode:
         return BinaryOPInstruction(ins)
     elif ins.opname.__contains__("LIST"):
         return DataInstruction(ins)
+    elif ins.opname == "BINARY_SUBSCR":
+        return BinarySubInstruction(ins)
     else:
         print(ins)
         raise NotImplementedError

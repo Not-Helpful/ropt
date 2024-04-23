@@ -10,7 +10,7 @@ class cfg():
 
 class DataPass(Pass):
 
-    name = "data dude"
+    name = "data"
     export = cfg.name
 
     requires = {

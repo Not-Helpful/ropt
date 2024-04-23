@@ -61,7 +61,7 @@ def findJumpTargets(basicBlocks: list[BasicBlock]):
 
         if isinstance(block.instructions[-1], JumpInstruction):
 
-            jumpTarget = block.instructions[-1].instruction.argval
+            jumpTarget = block.instructions[-1].get_jump_target()
 
             if block.instructions[-1].isConditional():
                 block.jump_target.append(i+1)

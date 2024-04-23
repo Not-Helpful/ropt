@@ -52,6 +52,26 @@ def passEngine():
     runPass(passToBeRun)
     # print(state.data)
 
+def runAllPasses():
+    sourcecode = './explore/testing.py'
+    pyPath = 'explore.testing'
+
+    funcList = getFuncList(sourcecode, pyPath)
+    # printFuncList(funcList)
+    
+    for func in funcList:
+        func.cfg = constructControlFlowGraph(func.instructionList)
+        printCFG(func)
+
+    state.functions = funcList
+
+    runInternalPasses()
+
+    for p in passlist:
+        runPass(p)
+
+    
+
 def getFuncList(pathname, pyPath) -> list[Function]:
     
     funcList = []
@@ -125,12 +145,13 @@ def getDependentPasses(passToBeRun):
     dependentPasses = []
     for p in passlist:
         if hasattr(p, "export"):
-            if p.export in passToBeRun.requires:
+            if (p.export in passToBeRun.requires) and (p not in state.ran):
                 dependentPasses.append(p)
     return dependentPasses
 
 if __name__ == "__main__":
-    passEngine()
+    runAllPasses()
+    # passEngine()
 
 
 

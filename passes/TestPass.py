@@ -8,7 +8,7 @@ class TestPass(Pass):
     name = "t"
     
     requires = {
-        cfg.name : cfg
+        "Control Flow Graph"
     }
 
     def run(state: State):

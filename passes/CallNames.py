@@ -22,7 +22,7 @@ class CallNames(Pass):
                         dec = (ins.instruction.arg + 1)
                         ins.calls = block.instructions[i-dec].instruction.argval
                         
-                        print('\n' + ins.calls + '\n')
+                        print('\n', ins.calls, '\n')
 
 
 
