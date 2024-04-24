@@ -1,78 +1,30 @@
-def remote(*argv):
-    pass
-    
-def get(*argv):
-    return 2
+import time
 
-def func():
-    return 1
+def ray_get(func):
+    return func
 
-def func2(arg):
-    return arg + 1
-
-def doThings(a, b):
-    return (a + b)
-
-# def func3(arg, listA):
-#     listA.append(arg)
-
-class classA():
-
-    def __init__(self):
-        self.z = 7
+# remote function
+def remote_do_some_work(x):
+    time.sleep(1) # Replace this with work you need to do.
+    return x
 
 
 def main():
 
-    a = 0
-    b = 1
-    c = a + b
-    d = c * 2
-    e = func() + c
-    f = func2(d) + b
-    g = e + f
+    x = 0
+    y = 1
 
-    remote(a)
-    a = get()
+    a = remote_do_some_work(x)
+    
+    var1 = ray_get(a)
 
-    x = 10
-    x = x*2
+    b = remote_do_some_work(y) # Optimization found
+    #b = remote_do_some_work(var1) # No optimization found
 
-    remote(b)
-    b = get()
+    var2 = ray_get(b)
 
-    c = b * 5
-    remote(c)
-    c = get()
+    var3 = var1 + var2
 
-    data = [c, e, g]
-    remote(data)
-
-    var = b
-
-    data.append(a)
-
-    if(a > f):
-        print('impossible')
-    elif(f > a):
-        print('possible')
-    else:
-        print('impossible, again')
-
-    newClass = classA()
-
-    x = newClass.z
-
-    for i in range(6):
-        var = var + 1
-
-    listB = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    listC = []
-
-    for i in range(10):
-        listC.append(doThings(listB[i], var))
-        
-    print(listC)
 
     # func3(x, data)
 

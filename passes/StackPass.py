@@ -10,16 +10,18 @@ class StackPass(Pass):
     export: str = "internal-stack-pass"
     
     requires = {
-
+        "analysis-dependency",
+        "ray-warning-fixup"
     }
 
     def run(state: State):
         funcList: list[Function] = state.functions
+        stackEffectFuncs = state.stackEffectFuncs
         for func in funcList:
-            StackPass.computeStack(Stack(), 0, func.cfg)
+            StackPass.computeStack(Stack(), 0, func.cfg, stackEffectFuncs)
             
     
-    def computeStack(stack: Stack, index, basicBlockList: list[BasicBlock]):
+    def computeStack(stack: Stack, index, basicBlockList: list[BasicBlock], stackEffectFuncs):
 
         for block in basicBlockList:
             if index > block.end_index:
@@ -27,7 +29,7 @@ class StackPass(Pass):
             for instruction in block.instructions:
             
                 if instruction.instruction.opname == "JUMP_BACKWARD":
-                    instruction.stack_effect(stack, False)
+                    instruction.stack_effect(stack, stackEffectFuncs, False)
                     backstack = copy.deepcopy(stack)
                     instruction.stacks.append(backstack)
                     # May cause strange behavior
@@ -37,20 +39,20 @@ class StackPass(Pass):
                     match instruction.isConditional():
                         case True:
                             jumpstack = copy.deepcopy(stack)
-                            instruction.stack_effect(jumpstack, True)
+                            instruction.stack_effect(jumpstack, stackEffectFuncs, True)
                             instruction.stacks.append(jumpstack)
-                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList)
+                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs)
 
-                            instruction.stack_effect(stack, False)
+                            instruction.stack_effect(stack, stackEffectFuncs, False)
                             nojumpStack = copy.deepcopy(stack)
                             instruction.stacks.append(nojumpStack)
                         case False:
-                            instruction.stack_effect(stack, True)
+                            instruction.stack_effect(stack, stackEffectFuncs, True)
                             jumpstack = copy.deepcopy(stack)
                             instruction.stacks.append(jumpstack)
-                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList)
+                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs)
                             return
                 else:
-                    instruction.stack_effect(stack)
+                    instruction.stack_effect(stack, stackEffectFuncs)
                     elseStack = copy.deepcopy(stack)
                     instruction.stacks.append(elseStack)

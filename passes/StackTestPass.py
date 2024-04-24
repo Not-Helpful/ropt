@@ -1,4 +1,15 @@
 from passes.PassClasses import Pass, State, Function
+import include.instructions as ins
+def prettyPrint(obj):
+    if isinstance(obj, dict):
+        for v in obj.keys():
+            print(v, ": ", end="")
+            prettyPrint(obj[v])
+    if isinstance(obj, ins.StackObject):
+        print(obj.name, ': ', obj.deps, end=', ')
+
+
+
 
 class StackTestPass(Pass):
 
@@ -14,11 +25,12 @@ class StackTestPass(Pass):
         for func in funcList:
             print('\n', func.name, ": ")
             for block in func.cfg:
-                for ins in block.instructions:
-                    print(ins.instruction.opname, ": ")
-                    for stack in ins.stacks:
+                for instruction in block.instructions:
+                    print(instruction.instruction.opname," ", instruction.instruction.offset, ": ")
+                    for stack in instruction.stacks:
                         print("[",end="")
                         for stackobj in stack.stack:
-                            print(stackobj.name, end=', ')
-                        print("]", end="")
+                            prettyPrint(stackobj)
+                        print("]")
+                        prettyPrint(stack.var_store)
                         print('\n')

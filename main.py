@@ -53,15 +53,15 @@ def passEngine():
     # print(state.data)
 
 def runAllPasses():
-    sourcecode = './explore/testing.py'
-    pyPath = 'explore.testing'
+    sourcecode = './explore/newTesting.py'
+    pyPath = 'explore.newTesting'
 
     funcList = getFuncList(sourcecode, pyPath)
     # printFuncList(funcList)
     
     for func in funcList:
         func.cfg = constructControlFlowGraph(func.instructionList)
-        printCFG(func)
+        # printCFG(func)
 
     state.functions = funcList
 

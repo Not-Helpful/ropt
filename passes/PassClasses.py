@@ -30,11 +30,13 @@ class State():
     functions: list[Function]
     data: dict
     ran: list[Pass]
+    stackEffectFuncs: list
 
     def __init__(self):
         self.data = {}
         self.ran = []
         self.modules = []
+        self.stackEffectFuncs = []
 
     def addData(self, obj):
         if not hasattr(obj, "name"):
