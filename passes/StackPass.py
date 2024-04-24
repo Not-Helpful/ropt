@@ -40,8 +40,8 @@ class StackPass(Pass):
                         instruction.stack_effect(stack, stackEffectFuncs, True)
                         jumpstack = copy.deepcopy(stack)
                         instruction.stacks.append(jumpstack)
-                        StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs)
-
+                        StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs, backwardsJumpOffsets)
+                        return
 
 
                 elif isinstance(instruction, JumpInstruction):
@@ -50,7 +50,7 @@ class StackPass(Pass):
                             jumpstack = copy.deepcopy(stack)
                             instruction.stack_effect(jumpstack, stackEffectFuncs, True)
                             instruction.stacks.append(jumpstack)
-                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs)
+                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs, backwardsJumpOffsets)
 
                             instruction.stack_effect(stack, stackEffectFuncs, False)
                             nojumpStack = copy.deepcopy(stack)
@@ -59,7 +59,7 @@ class StackPass(Pass):
                             instruction.stack_effect(stack, stackEffectFuncs, True)
                             jumpstack = copy.deepcopy(stack)
                             instruction.stacks.append(jumpstack)
-                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs)
+                            StackPass.computeStack(copy.deepcopy(jumpstack), instruction.get_jump_target(), basicBlockList, stackEffectFuncs, backwardsJumpOffsets)
                             return
                 else:
                     instruction.stack_effect(stack, stackEffectFuncs)
