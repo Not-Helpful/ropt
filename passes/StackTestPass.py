@@ -6,7 +6,7 @@ def prettyPrint(obj):
             print(v, ": ", end="")
             prettyPrint(obj[v])
     if isinstance(obj, ins.StackObject):
-        print(obj.name, ': ', obj.deps, end=', ')
+        print(obj.deps)
 
 
 
@@ -28,9 +28,9 @@ class StackTestPass(Pass):
                 for instruction in block.instructions:
                     print(instruction.instruction.opname," ", instruction.instruction.offset, ": ")
                     for stack in instruction.stacks:
-                        print("[",end="")
-                        for stackobj in stack.stack:
-                            prettyPrint(stackobj)
-                        print("]")
+                        #print("[",end="")
+                        #for stackobj in stack.stack:
+                        #    prettyPrint(stackobj)
+                        #print("]")
                         prettyPrint(stack.var_store)
                         print('\n')

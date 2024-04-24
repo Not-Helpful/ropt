@@ -57,6 +57,7 @@ def runAllPasses():
     pyPath = 'explore.testing'
 
     funcList = getFuncList(sourcecode, pyPath)
+    state.source = sourcecode
     # printFuncList(funcList)
     
     for func in funcList:
@@ -103,6 +104,7 @@ def getFuncList(pathname, pyPath) -> list[Function]:
 
             funcList.append(Function( member.__name__, instructions))
 
+    infile.close()
     return funcList
 
 def printFuncList(funcList: list[Function]):
