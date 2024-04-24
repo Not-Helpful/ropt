@@ -155,17 +155,3 @@ def getDependentPasses(passToBeRun):
 if __name__ == "__main__":
     runAllPasses()
     # passEngine()
-
-
-#TODO:
-    # 1. wrapper classes
-        # a. convert instruction to wrapper class
-    # 2. Instructions in function/basicblock form
-    # 3. cfg
-    # 4. replace instructions
-
-#StoreIteration()
-#instruction = store fast or store const
-    
-#TODO: 
-    #1. Read chapters 11 and 12 of dragon book
