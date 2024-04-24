@@ -46,9 +46,16 @@ class RayWarning(Pass):
         return remoteOffsets
 
     def printWarning(getOffset, remotes: list[ins.OpCode]):
-        print("The remote calls at line numbers:")
+        print("The ray.get call at line: " + str(getOffset) + " has been determined data independent from one or more remote call: ")
+        print("ray.get call: \n")
+
+        print('PLACEHOLDER\n')
+        # print line
+        print("Consider moving the following remote calls above the ray.get to improve parallelism and program execution efficiency.")
+        print("For more information visit the Ray documentation: ", end="")
+        print("https://docs.ray.io/en/latest/ray-core/tips-for-first-time.html#tip-1-delay-ray-get")
+        
+        print("remote calls:")
         for r in remotes:
             print(r.instruction.positions.lineno)
-        print("are data independent with the get call at line: " + str(getOffset))
-        print("You can safely move these remote calls above the get")
-        print("For more information on this warning, checkout [LINK]")
+            print('PLACEHOLDER\n')
