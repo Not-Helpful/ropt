@@ -9,15 +9,13 @@ def remote_do_some_work(x):
     return x
 
 def main():
-    start = time.time()
 
     results = []
 
     for x in range(4):
-        results.append(ray_get(remote_do_some_work(x)))
-    
-    print("duration =", time.time() - start)
-    print("results =", results)
+        remoteVar = remote_do_some_work(x)
+        getVar = ray_get(remoteVar)
+        results.append(getVar)
 
 if __name__ == '__main__':
     main()

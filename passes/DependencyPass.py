@@ -23,7 +23,7 @@ class DependencyPass(Pass):
         state.stackEffectFuncs.append(DependencyPass.dependencyEffect)
 
     def dependencyEffect(stack: ins.Stack, opcode: ins.OpCode, pushVals: list[ins.StackObject], popVals: list[ins.StackObject]):
-
+        
         if isinstance(opcode, ins.StoreInstruction):
             if popVals[0].name not in popVals[0].deps:
                 popVals[0].deps.append(popVals[0].name)
@@ -34,7 +34,16 @@ class DependencyPass(Pass):
         else:
             for popVal in popVals:
                 pushVals[0].deps = Union(pushVals[0].deps, popVal.deps)
-            
+
+        if isinstance(opcode, ins.CallInstruction):
+            if pushVals[0].name.__contains__('.'):
+                objName = pushVals[0].name.split('.')[0]
+                if objName in stack.var_store.keys():
+                    print(opcode.instruction.offset)
+                    print('KEY FOUND TRUE DEBUG')
+                    stack.var_store[objName].deps = Union(stack.var_store[objName].deps, pushVals[0].deps)
+                    print(stack.var_store[objName].deps)
+                    print(pushVals[0].deps)    
                 
 
 

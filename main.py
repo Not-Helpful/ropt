@@ -61,7 +61,7 @@ def runAllPasses():
     
     for func in funcList:
         func.cfg = constructControlFlowGraph(func.instructionList)
-        # printCFG(func)
+        printCFG(func)
 
     state.functions = funcList
 

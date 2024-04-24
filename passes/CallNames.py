@@ -20,6 +20,9 @@ class CallNames(Pass):
                 for i,ins in enumerate(block.instructions):
                     if isinstance(ins, CallInstruction):
                         dec = (ins.instruction.arg + 1)
+                        if not isinstance(block.instructions[i-dec].instruction.argval, str):
+                            print(block.instructions[i-dec].instruction)
+                            print(i-dec, 'DEBUG')
                         ins.calls = block.instructions[i-dec].instruction.argval
                         
                         print('\n', ins.calls, '\n')
