@@ -26,7 +26,5 @@ def main():
     var3 = var1 + var2
 
 
-    # func3(x, data)
-
 if __name__ == "__main__":
     main()

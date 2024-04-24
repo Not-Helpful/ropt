@@ -53,8 +53,8 @@ def passEngine():
     # print(state.data)
 
 def runAllPasses():
-    sourcecode = './explore/newTesting.py'
-    pyPath = 'explore.newTesting'
+    sourcecode = './explore/testing.py'
+    pyPath = 'explore.testing'
 
     funcList = getFuncList(sourcecode, pyPath)
     # printFuncList(funcList)
@@ -149,11 +149,10 @@ def getDependentPasses(passToBeRun):
                 dependentPasses.append(p)
     return dependentPasses
 
+
 if __name__ == "__main__":
     runAllPasses()
     # passEngine()
-
-
 
 
 #TODO:
